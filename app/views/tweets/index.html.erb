@@ -1,0 +1,56 @@
+<%= link_to "ログイン", tweets_path %>
+<%= link_to "新規登録", new_user_registration_path %>
+<%= button_to 'ログアウト', destroy_user_session_path, method: :delete %> 
+<h1>GeekTwitter</h1>
+<h3>Tweet一覧</h3>
+<h3>投稿を検索</h3>
+ <%= form_tag({controller:"tweets",action:"index"}, method: :get) do %>
+   <%= text_field_tag :search %>
+   <%= submit_tag '検索する'  %>
+<% end %>
+<%= link_to "新規投稿へ", new_tweet_path %>
+<% if user_signed_in? %>
+  <%= link_to "マイページへ", user_path(current_user.id) %>
+<% end %>
+<div class="tweets-container">
+  <% @tweets.each do |t| %>
+    <div class="tweet">
+    <%= link_to t.user.name, user_path(t.user.id) %>
+    <%= image_tag t.user.image_url, size: "250x200" if t.user.image? %>
+    <%= t.user.email %>
+      <%= t.body %>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/<%= find_youtube_url(t.youtube_url) %>" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <div class="tweet">
+      <%= t.user.email %>
+      
+      <%= t.body %>
+
+    <% if user_signed_in? %>
+        <% if current_user.already_liked?(t) %>
+           <%= link_to tweet_like_path(id: t.id, tweet_id: t.id), method: :delete do %>
+              
+              <i class="fas fa-heart"></i><%= t.likes.count %>
+              
+           <% end %>
+        <% else %>
+           <%= link_to tweet_likes_path(id: t.id, tweet_id: t.id), method: :post do %>
+              
+              <i class="far fa-heart"></i><%= t.likes.count %>
+              
+           <% end %>
+        <% end %>
+    <% else %>
+        
+        <i class="far fa-heart"></i><%= t.likes.count %>
+        
+    <% end %>
+      <%= t.created_at %>
+      <%= link_to "詳細へ", tweet_path(t.id) %> 
+      <% if user_signed_in? && current_user.id == t.user_id %>
+      <%= link_to "編集する", edit_tweet_path(t.id) %>
+      <%= button_to "削除する", tweet_path(t.id), method: :delete %>
+      <% end %> 
+      </div>
+    
+  <% end %>
+</div>
